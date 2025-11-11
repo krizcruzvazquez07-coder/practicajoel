@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\ConfirmPasswordController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ProductController;
 
 Route::get("/", function () {
     return view("welcome-simple");
@@ -43,4 +44,10 @@ Route::post("password/confirm", [ConfirmPasswordController::class,"confirm",]);
 
 Route::middleware(['auth', 'security:auth'])->group(function () {
     Route::get('/home', [HomeController::class, 'index'])->name('home');
+    
 });
+    Route::resource('products', ProductController::class)->except('show');
+    Route::get('/productos', [ProductController::class, 'index'])->name('product.index');
+    Route::get('/productos/agregar', [ProductController::class, 'create'])->name('product.create');
+
+    Route::resource('products', App\Http\Controllers\ProductController::class)->except('show');
