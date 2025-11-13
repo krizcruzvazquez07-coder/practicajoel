@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
@@ -13,41 +15,59 @@ Route::get("/", function () {
     return view("welcome-simple");
 });
 
-Route::get("/test", function () {
-    return view("test");
-})->middleware(["auth", "security:auth"]);
-
 // Custom auth routes with better control
 Route::get("login", [LoginController::class, "showLoginForm"])->name("login");
-Route::post("login", [LoginController::class, "login",]);
-Route::match(["get", "post"], "logout", [LoginController::class, "logout",])->name("logout")
+Route::post("login", [LoginController::class, "login"]);
+Route::match(["get", "post"], "logout", [LoginController::class, "logout"])
+    ->name("logout")
     ->middleware(["auth", "security:logout"]);
 
-Route::get("register", [RegisterController::class, "showRegistrationForm",])->name("register");
-Route::post("register", [RegisterController::class, "register",]);
+Route::get("register", [
+    RegisterController::class,
+    "showRegistrationForm",
+])->name("register");
+Route::post("register", [RegisterController::class, "register"]);
 
-Route::get("password/reset", [ForgotPasswordController::class, "showLinkRequestForm",])->name("password.request");
-Route::post("password/email", [ForgotPasswordController::class,"sendResetLinkEmail",])->name("password.email");
-Route::get("password/reset/{token}", [ResetPasswordController::class,"showResetForm",])->name("password.reset");
-Route::post("password/reset", [ResetPasswordController::class,"reset",])->name("password.update");
-Route::get("password/confirm", [ConfirmPasswordController::class,"showConfirmForm",])->name("password.confirm");
-Route::post("password/confirm", [ConfirmPasswordController::class,"confirm",]);
+Route::get("password/reset", [
+    ForgotPasswordController::class,
+    "showLinkRequestForm",
+])->name("password.request");
+Route::post("password/email", [
+    ForgotPasswordController::class,
+    "sendResetLinkEmail",
+])->name("password.email");
+Route::get("password/reset/{token}", [
+    ResetPasswordController::class,
+    "showResetForm",
+])->name("password.reset");
+Route::post("password/reset", [ResetPasswordController::class, "reset"])->name(
+    "password.update",
+);
+Route::get("password/confirm", [
+    ConfirmPasswordController::class,
+    "showConfirmForm",
+])->name("password.confirm");
+Route::post("password/confirm", [ConfirmPasswordController::class, "confirm"]);
 
-// Route::group(['prefix' => 'password', 'as' => 'password.'], function () {
-//     Route::get("/reset", [ForgotPasswordController::class, "showLinkRequestForm",])->name("request");
-//     Route::post("/email", [ForgotPasswordController::class,"sendResetLinkEmail",])->name("email");
+Route::middleware(["auth", "security:auth"])->group(function () {
+    Route::get("/home", [HomeController::class, "index"])->name("home");
 
-// });
+    Route::resource("products", ProductController::class)->except([
+        "show",
+        "update",
+    ]);
+    Route::get("productos", [ProductController::class, "index"])->name(
+        "products.index",
+    );
+    Route::get("productos/agregar", [ProductController::class, "create"])->name(
+        "products.create",
+    );
+    Route::get("products/data", [ProductController::class, "dataTable"])->name(
+        "products.data",
+    );
+    Route::get("products/{product}/download-image", [
+        ProductController::class,
+        "downloadImage",
+    ])->name("products.download-image");
 
-// Route::get("/home", [HomeController::class, "index"])->name("home")
-//     ->middleware(["auth", "security:auth"]);
-
-Route::middleware(['auth', 'security:auth'])->group(function () {
-    Route::get('/home', [HomeController::class, 'index'])->name('home');
-    
 });
-    Route::resource('products', ProductController::class)->except('show');
-    Route::get('/productos', [ProductController::class, 'index'])->name('product.index');
-    Route::get('/productos/agregar', [ProductController::class, 'create'])->name('product.create');
-
-    Route::resource('products', App\Http\Controllers\ProductController::class)->except('show');
