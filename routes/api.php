@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\UserController; //nuevo
 
 /*
 |--------------------------------------------------------------------------
@@ -66,6 +67,18 @@ Route::middleware("auth:sanctum")->group(function () {
             ProductController::class,
             "deleteImage",
         ])->name('delete-image'); // Nombre: api.products.delete-image
+    });
+
+    // Rutas de usuarios (aqui el CRUD completo)
+    Route::name('api.users.')->prefix('users')->group(function () {
+        
+        Route::apiResource("/", UserController::class)->parameters([
+            "" => "user"
+        ]);
+
+        // GET /api/users/statistics
+        Route::get("/statistics", [UserController::class, "stats"])
+             ->name('stats');
     });
 
 });

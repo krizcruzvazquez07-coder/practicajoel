@@ -10,6 +10,7 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\ConfirmPasswordController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\UserController;
 
 Route::get("/", function () {
     return view("welcome-simple");
@@ -56,11 +57,16 @@ Route::middleware(["auth", "security:auth"])->group(function () {
         "show",
         "update",
     ]);
+    // Users module routes (copaido a Products)
+    Route::resource('users', UserController::class)->except(['show', 'update']);
+    Route::get('users/data', [UserController::class, 'dataTable'])->name('users.data');
+    Route::get('usuarios', [UserController::class, 'index'])->name('usuarios.index');
+    Route::get('usuarios/agregar', [UserController::class, 'create'])->name('usuarios.create');
     Route::get("productos", [ProductController::class, "index"])->name(
-        "products.index",
+        "productos.index",
     );
     Route::get("productos/agregar", [ProductController::class, "create"])->name(
-        "products.create",
+        "productos.create",
     );
     Route::get("products/data", [ProductController::class, "dataTable"])->name(
         "products.data",
